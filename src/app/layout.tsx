@@ -14,24 +14,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "RPCI Stock Scanner - NSE India | Automated Range Compression Analysis",
+  description: "Automated RPCI (Range Percent Compression Indicator) stock scanner for NSE India. Identifies consolidation stocks with weekly RSI range shift, Bollinger Band squeeze, and volatility compression before breakout.",
+  keywords: ["RPCI", "stock scanner", "NSE", "India", "consolidation", "breakout", "range compression", "Bollinger Bands", "RSI", "ATR", "F&O stocks"],
+  authors: [{ name: "RPCI Scanner" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "RPCI Stock Scanner - NSE India",
+    description: "Automated stock scanner identifying RPCI consolidation setups on NSE India",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
   },
 };
 
