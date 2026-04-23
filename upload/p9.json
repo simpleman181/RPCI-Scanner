@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "WHAT'S THE BLUE DOTS BELOW STOCKS?\nrohan_investor published on TradingView.com, Jun 18, 2025 19:16 UTC+5:30\nTANLA PLATFORMS LTD · 1D · NSE O1,112.55 H1,238.65 L1,095.55 C1,218.50 +143.25 (+13.32%)\nVol 10.9M 1.77M\nRohan Momentum Indicator",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955268,
+  "id": "20260423224101f041f4ae1a824ca5",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260423224101f041f4ae1a824ca5",
+  "usage": {
+    "completion_tokens": 106,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6083,
+    "prompt_tokens_details": {
+      "cached_tokens": 4
+    },
+    "total_tokens": 6189
+  }
+}

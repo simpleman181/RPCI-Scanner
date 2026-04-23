@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "WHERE TO FIND TRAILING STOP LOSS?\nIndicators, metrics, and strategies\ntrailing % stop\nFavorites\nFAVORITES\nTrailing % Stop\nKivancOzbilgic\n5.6 K\nPersonal\nCOMMUNITY\nTrailing % Stop\nKivancOzbilgic\n5.6 K\nTechnical\nTrailing Stop Loss Indicator by KivanÇ fr3762\nKivancOzbilgic\n6.7 K\nFinancials\nMarket Structure Trailing Stop [LuxAlgo]\nLuxAlgo\n5.6 K\nCommunity\nAverage True Range Trailing Stops Colored\nHPotter\n4.1 K\nInvite-only\nATR Trailing Stoploss\nceyhun\n3.9 K\nCDC ATR Trailing Stop V2.1 (2013)\npiriya33\n3.6 K\nSUPERTREND ATR WITH TRAILING STOP L...\nexit490\n3.5 K\nVolume Delta Trailing Stop [LuxAlgo]\nLuxAlgo\n3.3 K\nATR Trailing Stop by ceyhun\nceyhun\n3.3 K\nPinescript v4 - The Holy Grail (Trailing Stop)\nTsangYouJun\n3.2 K\nStatistical Trailing Stop [LuxAlgo]\nLuxAlgo\n3.2 K\nMarket Structure Trailing Stop [BigBeluga]\nBigBeluga\n3 K",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955439,
+  "id": "2026042322434685e7c59d966044f0",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "2026042322434685e7c59d966044f0",
+  "usage": {
+    "completion_tokens": 310,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 4
+    },
+    "total_tokens": 6382
+  }
+}

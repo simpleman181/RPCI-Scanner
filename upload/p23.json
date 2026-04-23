@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "rohan_investor published on TradingView.com, Jun 19, 2025 09:52 UTC+5:30\nNIP IND ETF PSU BANK BEES · 1D · NSE O83.67 H85.21 L83.40 C84.34 +0.67 (+0.80%)\nVol 3.23M 2.9M\nRohan Momentum Indicator\nBars shrinking\nBars shrinking\nBars shrinking\nTradingView",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955422,
+  "id": "202604232243365af8d1f5101d4285",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "202604232243365af8d1f5101d4285",
+  "usage": {
+    "completion_tokens": 100,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 4
+    },
+    "total_tokens": 6172
+  }
+}

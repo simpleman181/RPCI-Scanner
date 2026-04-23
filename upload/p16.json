@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "SHRIRAM PIST. & RING LTD · 1D · NSE O1,521.20 H1,565.90 L1,416.80 C1,519.00 +27.65 (+1.85%)\nVol 74.97K 32.33K\n%Stop 1,367.10\nINR\n2,200.00\n1,800.00\n1,519.00\n1,400.00\n1,100.00\n900.00\n750.00\n630.00\n510.00\n430.00\n350.00\n290.00\n240.00\nRohan Momentum Indicator\nBars shrinking\nBars shrinking\n6.00\n4.00\n2.00\n0.00\n-2.00\nDec\n2023\nFeb\nMar\nApr\nMay\nJun\nJul\nAug\nTradingView",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955347,
+  "id": "2026042322421779af3f3850b04712",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "2026042322421779af3f3850b04712",
+  "usage": {
+    "completion_tokens": 202,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 33
+    },
+    "total_tokens": 6274
+  }
+}

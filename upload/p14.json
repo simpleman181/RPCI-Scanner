@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "NSE:MARUTI, Published on TradingView.com, Jun 18, 2025 20:05 UTC+5:30\nMARUTI INDUSTRIES LTD · 1D · NSE O1,930.00 H1,974.00 L1,913.60 C1,926.30 +12.80 (+0.67%)\nVol 62.2K 80.27K\nINR\n2,200.00\n2,000.00\n1,926.30\n1,800.00\n1,700.00\n1,600.00\n1,480.00\n1,400.00\n1,325.00\n1,245.00\n1,165.00\n1,095.00\n1,035.00\nRohan Momentum Indicator\n12.00\nBars shrinking\n8.00\n4.00\n0.00\n-4.00\nOct\nNov\nDec\n2025\nFeb\nMar\nApr\nMay\nJun\nJul\nTradingView",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955320,
+  "id": "202604232241458ddcd5fc84354674",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "202604232241458ddcd5fc84354674",
+  "usage": {
+    "completion_tokens": 233,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 6305
+  }
+}

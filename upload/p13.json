@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "SHAKTI PUMPS (I) LTD · 1D · NSE O197.50 H204.11 L186.00 C189.34 +4.26 (+2.30%)\nVol 24.81M 3.78M\nRohan Momentum Indicator\nBars shrinking\nBars shrinking\nBars shrinking\nBars shrinking\nMar\nApr\nMay\nJun\nJul\nAug\nSep\nOct\nNov\nTradingView",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955305,
+  "id": "20260423224139715999f7c3a64c76",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260423224139715999f7c3a64c76",
+  "usage": {
+    "completion_tokens": 96,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 6168
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "WHAT DO THE 3 RPCI SCREENERS HELP US\nUNDERSTAND?\n(1) First scanner helps you find stocks that have been consolidating\nfor a long time, e.g., 3–5 months or more.\n(2) Second scanner helps you find stocks that have been consolidating\nfor 2–3 weeks or more.\n(3) Third scanner helps you find recently listed IPOs that are\nconsolidating.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955256,
+  "id": "20260423224050e5c2ddf913c8475b",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260423224050e5c2ddf913c8475b",
+  "usage": {
+    "completion_tokens": 93,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6085,
+    "prompt_tokens_details": {
+      "cached_tokens": 4
+    },
+    "total_tokens": 6178
+  }
+}

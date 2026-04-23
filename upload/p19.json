@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "NSE:DEEPAKQUA, Published on TradingView.com, Jun 18, 2025 20:27 UTC+5:30\nDEEPAK QUARTZ & QUALITY CHE LTD · 1D · NSE O1,828.25 H2,044.00 L1,828.25 C1,930.70 +117.50 (+6.48%)\nVol 221.26K 92.96K\nINR\n2,400.00\n1,930.70\n1,600.00\n1,300.00\n1,100.00\n900.00\n740.00\n620.00\n520.00\n440.00\n370.00\nRohan Momentum Indicator\n20.00\nBar shrinking\nBar shrinking\nBar shrinking\n10.00\n0.00\n2021\nFeb\nMar\nApr\nMay\nJun\nJul\nAug\nSep\nTradingView",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955377,
+  "id": "20260423224246beae94203fc24a76",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260423224246beae94203fc24a76",
+  "usage": {
+    "completion_tokens": 213,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 15
+    },
+    "total_tokens": 6285
+  }
+}

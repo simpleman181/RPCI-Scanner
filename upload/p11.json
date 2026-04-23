@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "TANLA PLATFORMS LTD 1D · NSE O1,112.55 H1,238.65 L1,095.55 C1,218.50 +143.25 (+13.32%)\nVol 10.9M 1.77M\n%Stop 1,096.66\nRohan Momentum Indicator\nBars shrinking under black line.\nTradingView",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955291,
+  "id": "20260423224124a8022c5032044bb2",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260423224124a8022c5032044bb2",
+  "usage": {
+    "completion_tokens": 86,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 6158
+  }
+}

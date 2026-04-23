@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "WHEN TO AVOID RPCI SET-UP?\n\n(1) When you lots of volatility around breakout area.\n\n(2) Short-term breadth is getting weak as less than 45% stocks are above 10 MA.\n\n(3) RPCI setup appeared 30% above 50 EMA, so it’s now stretched.\n\n(4) Big red volume bars crossing 50 days average line\n\n(5) Don't trade RPCI set-ups in 5% circuit stocks\n\n(6) Don't trade RPCI stocks placed in LT ASM.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955279,
+  "id": "20260423224112bd7ddcf3794b40ae",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260423224112bd7ddcf3794b40ae",
+  "usage": {
+    "completion_tokens": 115,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 6187
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "CHASING IS DANGEROUS",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955426,
+  "id": "202604232243439dca6429e9f54ed0",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "202604232243439dca6429e9f54ed0",
+  "usage": {
+    "completion_tokens": 11,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 33
+    },
+    "total_tokens": 6083
+  }
+}

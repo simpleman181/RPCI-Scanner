@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "HIND RECTIFIER LTD · 1D · NSE O694.85 H703.45 L661.90 C676.30 −18.30 (−2.64%)\nVol 26.25K 37.23K\nMoving Averages ∅ ∅ ∅ ∅ ∅ ∅ 488.88 ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅\nRohan Momentum Indicator\nBars shrinking\nBars shrinking\nBars shrinking\nMar\nApr\nMay\nJun\nJul\nAug\nSep\nOct\nNov\nDec\nINR\n1,000.00\n800.00\n676.30\n530.00\n410.00\n335.00\n275.00\n215.00\n175.00\n145.00\n121.00\n101.00\n12.00\n8.00\n4.00\n0.00\n−4.00\nTradingView",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955407,
+  "id": "20260423224314fc6988af0fcc4100",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260423224314fc6988af0fcc4100",
+  "usage": {
+    "completion_tokens": 218,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 33
+    },
+    "total_tokens": 6290
+  }
+}

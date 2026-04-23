@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "TradingView published on TradingView.com, Jun 18, 2025 20:12 UTC+5:30\nFIEM INDUSTRIES LTD · 1D · NSE O293.00 H341.60 L288.75 C313.55 +23.20 (+7.99%)\nVol 1.52M 294.89K\nMoving Averages ∅ ∅ ∅ ∅ ∅ 251.09 ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅ ∅\nRohan Momentum Indicator\nBars shrinking\nBars shrinking\n2020 Feb Mar Apr May Jun Jul Aug Sep\nINR 480.00 400.00 313.55 265.00 225.00 185.00 155.00 125.00 105.00 89.00 74.00 62.00 20.00 10.00 0.00\n1⁄2 TradingView",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1776955332,
+  "id": "202604232242003f751c624442406b",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "202604232242003f751c624442406b",
+  "usage": {
+    "completion_tokens": 224,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 6072,
+    "prompt_tokens_details": {
+      "cached_tokens": 33
+    },
+    "total_tokens": 6296
+  }
+}
