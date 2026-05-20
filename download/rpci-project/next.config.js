@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  // Do NOT use output: "standalone" — that's for Docker, not Vercel
   typescript: {
     ignoreBuildErrors: true,
   },

@@ -73,6 +73,7 @@ interface ScanResponse {
   filters: { minScore: number; fnoOnly: boolean; nonFnoOnly: boolean };
   stocks: StockResult[];
   errors: string[];
+  error?: string;
 }
 
 // ─── Main Page ──────────────────────────────────────────────────────────
@@ -80,6 +81,7 @@ interface ScanResponse {
 export default function Home() {
   const [data, setData] = useState<ScanResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [minScore, setMinScore] = useState('5');
   const [stockType, setStockType] = useState('all');
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
@@ -87,6 +89,7 @@ export default function Home() {
 
   const runScan = useCallback(async () => {
     setLoading(true);
+    setError(null);
     setData(null);
     try {
       const params = new URLSearchParams();
@@ -95,11 +98,31 @@ export default function Home() {
       if (stockType === 'fno') params.set('fnoOnly', 'true');
       if (stockType === 'nonfno') params.set('nonFnoOnly', 'true');
 
-      const res = await fetch(`/api/scan?${params.toString()}`);
+      // 90 second timeout for the scan (backend has 60s maxDuration)
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+      const res = await fetch(`/api/scan?${params.toString()}`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+      }
+
       const json: ScanResponse = await res.json();
+      if (!json.success) {
+        throw new Error(json.error || 'Scan failed on server');
+      }
       setData(json);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Scan failed:', err);
+      if (err.name === 'AbortError') {
+        setError('Scan timed out. The server may be starting up (cold start). Please try again in 30 seconds.');
+      } else {
+        setError(err.message || 'Failed to scan stocks. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -114,20 +137,6 @@ export default function Home() {
 
   const toggleExpand = (symbol: string) => {
     setExpandedCard(expandedCard === symbol ? null : symbol);
-  };
-
-  const getScoreColor = (score: number, total: number) => {
-    const pct = score / total;
-    if (pct >= 0.78) return 'text-emerald-600';
-    if (pct >= 0.56) return 'text-amber-600';
-    return 'text-red-500';
-  };
-
-  const getScoreBg = (score: number, total: number) => {
-    const pct = score / total;
-    if (pct >= 0.78) return 'bg-emerald-50 border-emerald-200';
-    if (pct >= 0.56) return 'bg-amber-50 border-amber-200';
-    return 'bg-red-50 border-red-200';
   };
 
   const getScoreBadgeVariant = (score: number, total: number) => {
@@ -206,7 +215,7 @@ export default function Home() {
                 <span className="font-medium"> BB Squeeze</span>,
                 <span className="font-medium"> Range Compression</span>,
                 <span className="font-medium"> ATR Decline</span>, and
-                <span className="font-medium"> Not at Circuit</span>. Avoidance rules: no 5% circuit stocks, no LT ASM, not stretched &gt;30% from 50 EMA.
+                <span className="font-medium"> Not at Circuit</span>. Avoidance rules: no 5% circuit stocks, not stretched &gt;30% from 50 EMA.
               </div>
             </div>
           </CardContent>
@@ -215,14 +224,35 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        {/* Loading State */}
         {loading && !data && (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
             <div className="text-center">
               <p className="text-sm font-medium text-gray-700">Scanning NSE Stocks...</p>
               <p className="text-xs text-gray-400 mt-1">Fetching daily &amp; weekly data, calculating 9 criteria per stock</p>
+              <p className="text-xs text-gray-400 mt-1">This may take 20-40 seconds on first load (cold start)</p>
             </div>
           </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <Card className="border-red-200 bg-red-50/50 mb-6">
+            <CardContent className="py-6 px-6 text-center">
+              <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+              <p className="text-sm font-medium text-red-700">Scan Failed</p>
+              <p className="text-xs text-red-500 mt-2 max-w-md mx-auto">{error}</p>
+              <Button
+                onClick={runScan}
+                size="sm"
+                className="mt-4 bg-red-600 hover:bg-red-700 text-white"
+              >
+                <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                Retry Scan
+              </Button>
+            </CardContent>
+          </Card>
         )}
 
         {data && (

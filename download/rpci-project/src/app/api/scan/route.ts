@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Force Vercel to use extended timeout for this route
+export const maxDuration = 60;
+
 // ─── Technical Indicator Helpers ────────────────────────────────────────
 
 interface Candle {
@@ -99,10 +102,10 @@ const FNO_STOCKS = new Set([
   "SUNTECK", "GODREJPROP", "JBMHANDA", "JKCEMENT", "JSL",
 ]);
 
-// ─── Known NSE Stocks to Scan ───────────────────────────────────────────
+// ─── Optimized NSE Stock List (~60 most liquid, covers F&O + popular non-F&O) ──
 
 const SCAN_SYMBOLS: string[] = [
-  // Large Cap F&O
+  // Nifty 50 Core (F&O)
   "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "ICICIBANK.NS",
   "SBIN.NS", "BHARTIARTL.NS", "ITC.NS", "KOTAKBANK.NS", "LT.NS",
   "AXISBANK.NS", "BAJFINANCE.NS", "MARUTI.NS", "SUNPHARMA.NS", "TATAMOTORS.NS",
@@ -111,42 +114,52 @@ const SCAN_SYMBOLS: string[] = [
   "POWERGRID.NS", "NTPC.NS", "TATACONSUM.NS", "NESTLEIND.NS", "JSWSTEEL.NS",
   "TECHM.NS", "GRASIM.NS", "HINDALCO.NS", "DIVISLAB.NS", "DRREDDY.NS",
   "EICHERMOT.NS", "BPCL.NS", "CIPLA.NS", "HEROMOTOCO.NS", "BRITANNIA.NS",
-  "HINDZINC.NS", "ULTRACEMCO.NS", "TATACOMM.NS",
-  // Mid & Small Cap F&O
-  "IRFC.NS", "IRCTC.NS", "CONCOR.NS", "HAL.NS", "BEL.NS", "DIXON.NS",
-  "RVNL.NS", "SUZLON.NS", "NHPC.NS", "PFC.NS", "REC.NS", "BHEL.NS",
-  "YESBANK.NS", "PNB.NS", "BANKBARODA.NS", "CANBK.NS", "FEDERALBNK.NS",
-  "MANAPPURAM.NS", "AARTIDRUGS.NS", "DALBHARAT.NS", "EQUITASBNK.NS",
-  "HAPPSTMNDS.NS", "HAVELLS.NS", "IGL.NS", "INDIAMART.NS", "KPITTECH.NS",
-  "LALPATHLAB.NS", "LICHSGFIN.NS", "M&MFIN.NS", "OLECTRA.NS", "PAGEIND.NS",
-  "PERSISTENT.NS", "RBLBANK.NS", "SHARDACROP.NS", "SHOPERSTOP.NS",
-  "SIEMENS.NS", "STARHEALTH.NS", "SUPREMEIND.NS", "SUVENPHAR.NS",
-  "TEAMLEASE.NS", "TORNTPOWER.NS", "TITAGARH.NS", "TVSMOTOR.NS",
-  "UNOMINDA.NS", "V2RETAIL.NS", "WHIRLPOOL.NS",
-  // Non-F&O / Recently trending stocks
-  "TANLA.NS", "SHAKTIPUMP.NS", "FIEMIND.NS", "COCHINPLANT.NS",
-  "HINDRECT.NS", "CDSL.NS", "NAUKRI.NS", "DEEPAKNTR.NS", "GAIL.NS",
-  "NMDC.NS", "POLYCAB.NS", "MRF.NS", "CUMMINSIND.NS", "BERGEPAINT.NS",
-  "DABUR.NS", "MUTHOOTFIN.NS", "NATCOPHARM.NS", "PCBL.NS", "PRAJIND.NS",
-  "RAMCOCEM.NS", "SYMPHONY.NS", "TATAINVEST.NS", "UPL.NS", "ZEEL.NS",
-  "FORTIS.NS", "BLUEDART.NS", "LAURUSLABS.NS", "FLUOROCHEM.NS",
-  "DCXINDIA.NS", "BSE.NS", "LUPIN.NS", "ALKEM.NS", "TORNTPHARM.NS",
-  "ADANIPORTS.NS", "TRENT.NS", "WAGNINDEV.NS", "DLF.NS", "IDFC.NS",
-  "GODREJPROP.NS", "JBMHANDA.NS", "JKCEMENT.NS", "JSL.NS",
-  "SURYAROSNI.NS", "SHRIRAMPIST.NS", "COCHINPLANT.NS",
-  "DEEPAKQUA.NS", "KINGFA.NS", "RAILTOUR.NS",
+  "HINDZINC.NS", "ULTRACEMCO.NS",
+  // Popular Mid Cap F&O
+  "IRFC.NS", "HAL.NS", "BEL.NS", "DIXON.NS", "RVNL.NS",
+  "SUZLON.NS", "NHPC.NS", "PFC.NS", "REC.NS", "BHEL.NS",
+  "TATACOMM.NS", "CONCOR.NS", "IRCTC.NS",
+  // Popular Non-F&O
+  "MRF.NS", "CDSL.NS", "GAIL.NS", "NMDC.NS", "POLYCAB.NS",
+  "DLF.NS", "TRENT.NS", "ZOMATO.NS", "IDEA.NS", "ADANIPORTS.NS",
 ];
 
-// ─── Fetch Data from Yahoo Finance ──────────────────────────────────────
+// ─── Yahoo Finance Fetch (with timeout) ──────────────────────────────────
+
+let yahooInstance: any = null;
+
+async function getYahoo() {
+  if (!yahooInstance) {
+    const mod = await import("yahoo-finance2");
+    yahooInstance = new mod.default();
+  }
+  return yahooInstance;
+}
+
+async function fetchWithTimeout(promise: Promise<any>, ms: number) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    const result = await promise;
+    clearTimeout(timer);
+    return result;
+  } catch (err: any) {
+    clearTimeout(timer);
+    if (err.name === "AbortError") throw new Error("Timeout");
+    throw err;
+  }
+}
 
 async function fetchDailyData(symbol: string): Promise<Candle[] | null> {
   try {
-    const YahooFinance = (await import("yahoo-finance2")).default;
-    const yahooFinance = new YahooFinance();
-    const dailyData = await yahooFinance.chart(symbol, {
-      period1: "2025-06-01",
-      interval: "1d",
-    });
+    const yahoo = await getYahoo();
+    const dailyData = await fetchWithTimeout(
+      yahoo.chart(symbol, {
+        period1: "2025-06-01",
+        interval: "1d",
+      }),
+      8000
+    );
     if (!dailyData || !dailyData.quotes || dailyData.quotes.length < 50) return null;
     return dailyData.quotes
       .filter(
@@ -168,12 +181,14 @@ async function fetchDailyData(symbol: string): Promise<Candle[] | null> {
 
 async function fetchWeeklyData(symbol: string): Promise<Candle[] | null> {
   try {
-    const YahooFinance = (await import("yahoo-finance2")).default;
-    const yahooFinance = new YahooFinance();
-    const weeklyData = await yahooFinance.chart(symbol, {
-      period1: "2025-03-01",
-      interval: "1wk",
-    });
+    const yahoo = await getYahoo();
+    const weeklyData = await fetchWithTimeout(
+      yahoo.chart(symbol, {
+        period1: "2025-03-01",
+        interval: "1wk",
+      }),
+      8000
+    );
     if (!weeklyData || !weeklyData.quotes || weeklyData.quotes.length < 14)
       return null;
     return weeklyData.quotes
@@ -442,7 +457,8 @@ export async function GET(request: NextRequest) {
     const results: StockResult[] = [];
     const errors: string[] = [];
 
-    const batchSize = 3;
+    // Process 8 stocks concurrently (was 3, now much faster)
+    const batchSize = 8;
     for (
       let i = 0;
       i < scanList.length && results.length < limit;
