@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import path from "path";
+import fs from "fs";
 
 // ─── Technical Indicator Helpers ────────────────────────────────────────
 
@@ -72,70 +74,18 @@ function calcATR(candles: Candle[], period: number = 14): number[] {
   return atrs;
 }
 
-// ─── NSE F&O Stock List (curated) ───────────────────────────────────────
+// ─── Load stocks from public/stocks.json ────────────────────────────────
 
-const FNO_STOCKS = new Set([
-  "RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "HINDUNILVR", "SBIN",
-  "BHARTIARTL", "ITC", "KOTAKBANK", "LT", "AXISBANK", "BAJFINANCE", "MARUTI",
-  "SUNPHARMA", "TATAMOTORS", "WIPRO", "TATASTEEL", "ADANIENT", "ASIANPAINT",
-  "HCLTECH", "BAJAJFINSV", "ONGC", "COALINDIA", "INDUSINDBK", "TITAN",
-  "POWERGRID", "NTPC", "TATACONSUM", "NESTLEIND", "JSWSTEEL", "TECHM",
-  "GRASIM", "HINDALCO", "DIVISLAB", "DRREDDY", "EICHERMOT", "BPCL", "CIPLA",
-  "HEROMOTOCO", "BRITANNIA", "HINDZINC", "ULTRACEMCO", "TATACOMM",
-  "IRFC", "IRCTC", "CONCOR", "HAL", "BEL", "DIXON", "RVNL", "SUZLON", "NHPC",
-  "PFC", "REC", "BHEL", "YESBANK", "PNB", "BANKBARODA", "CANBK",
-  "FEDERALBNK", "MANAPPURAM", "AARTIDRUGS", "DALBHARAT", "EQUITASBNK",
-  "HAPPSTMNDS", "HAVELLS", "IGL", "INDIAMART", "KPITTECH", "LALPATHLAB",
-  "LICHSGFIN", "M&MFIN", "OLECTRA", "PAGEIND", "PERSISTENT", "RBLBANK",
-  "SHARDACROP", "SHOPERSTOP", "SIEMENS", "STARHEALTH", "SUPREMEIND",
-  "SUVENPHAR", "TEAMLEASE", "TORNTPOWER", "TITAGARH", "TVSMOTOR", "UNOMINDA",
-  "V2RETAIL", "WHIRLPOOL", "ZEEL", "GAIL", "NMDC", "POLYCAB", "TATAELXSI",
-  "CUMMINSIND", "BERGEPAINT", "DABUR", "MUTHOOTFIN", "NATCOPHARM",
-  "PCBL", "PRAJIND", "RAMCOCEM", "SYMPHONY", "TATAINVEST", "UPL",
-  "LUPIN", "ALKEM", "TORNTPHARM", "CDSL", "NAUKRI", "DEEPAKNTR",
-  "COFORGE", "LATENTVIEW", "360ONE", "JIOFIN", "BOSCHLTD", "CHOLAHLDNG",
-  "IDFC", "ADANIPORTS", "TRENT", "ADANIGREEN", "IBULHSGFIN", "WAGNINDEV",
-  "DLF", "IDEA", "ZOMATO", "PBKFINTCH", "MOTHERSUMI", "AUROPHARMA",
-  "SUNTECK", "GODREJPROP", "JBMHANDA", "JKCEMENT", "JSL",
-]);
-
-// ─── Known NSE Stocks to Scan ───────────────────────────────────────────
-
-const SCAN_SYMBOLS: string[] = [
-  // Large Cap F&O
-  "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "ICICIBANK.NS",
-  "SBIN.NS", "BHARTIARTL.NS", "ITC.NS", "KOTAKBANK.NS", "LT.NS",
-  "AXISBANK.NS", "BAJFINANCE.NS", "MARUTI.NS", "SUNPHARMA.NS", "TATAMOTORS.NS",
-  "WIPRO.NS", "TATASTEEL.NS", "ADANIENT.NS", "ASIANPAINT.NS", "HCLTECH.NS",
-  "BAJAJFINSV.NS", "ONGC.NS", "COALINDIA.NS", "INDUSINDBK.NS", "TITAN.NS",
-  "POWERGRID.NS", "NTPC.NS", "TATACONSUM.NS", "NESTLEIND.NS", "JSWSTEEL.NS",
-  "TECHM.NS", "GRASIM.NS", "HINDALCO.NS", "DIVISLAB.NS", "DRREDDY.NS",
-  "EICHERMOT.NS", "BPCL.NS", "CIPLA.NS", "HEROMOTOCO.NS", "BRITANNIA.NS",
-  "HINDZINC.NS", "ULTRACEMCO.NS", "TATACOMM.NS",
-  // Mid & Small Cap F&O
-  "IRFC.NS", "IRCTC.NS", "CONCOR.NS", "HAL.NS", "BEL.NS", "DIXON.NS",
-  "RVNL.NS", "SUZLON.NS", "NHPC.NS", "PFC.NS", "REC.NS", "BHEL.NS",
-  "YESBANK.NS", "PNB.NS", "BANKBARODA.NS", "CANBK.NS", "FEDERALBNK.NS",
-  "MANAPPURAM.NS", "AARTIDRUGS.NS", "DALBHARAT.NS", "EQUITASBNK.NS",
-  "HAPPSTMNDS.NS", "HAVELLS.NS", "IGL.NS", "INDIAMART.NS", "KPITTECH.NS",
-  "LALPATHLAB.NS", "LICHSGFIN.NS", "M&MFIN.NS", "OLECTRA.NS", "PAGEIND.NS",
-  "PERSISTENT.NS", "RBLBANK.NS", "SHARDACROP.NS", "SHOPERSTOP.NS",
-  "SIEMENS.NS", "STARHEALTH.NS", "SUPREMEIND.NS", "SUVENPHAR.NS",
-  "TEAMLEASE.NS", "TORNTPOWER.NS", "TITAGARH.NS", "TVSMOTOR.NS",
-  "UNOMINDA.NS", "V2RETAIL.NS", "WHIRLPOOL.NS",
-  // Non-F&O / Recently trending stocks
-  "TANLA.NS", "SHAKTIPUMP.NS", "FIEMIND.NS", "COCHINPLANT.NS",
-  "HINDRECT.NS", "CDSL.NS", "NAUKRI.NS", "DEEPAKNTR.NS", "GAIL.NS",
-  "NMDC.NS", "POLYCAB.NS", "MRF.NS", "CUMMINSIND.NS", "BERGEPAINT.NS",
-  "DABUR.NS", "MUTHOOTFIN.NS", "NATCOPHARM.NS", "PCBL.NS", "PRAJIND.NS",
-  "RAMCOCEM.NS", "SYMPHONY.NS", "TATAINVEST.NS", "UPL.NS", "ZEEL.NS",
-  "FORTIS.NS", "BLUEDART.NS", "LAURUSLABS.NS", "FLUOROCHEM.NS",
-  "DCXINDIA.NS", "BSE.NS", "LUPIN.NS", "ALKEM.NS", "TORNTPHARM.NS",
-  "ADANIPORTS.NS", "TRENT.NS", "WAGNINDEV.NS", "DLF.NS", "IDFC.NS",
-  "GODREJPROP.NS", "JBMHANDA.NS", "JKCEMENT.NS", "JSL.NS",
-  "SURYAROSNI.NS", "SHRIRAMPIST.NS", "COCHINPLANT.NS",
-  "DEEPAKQUA.NS", "KINGFA.NS", "RAILTOUR.NS",
-];
+function loadStocksConfig(): { symbols: string[]; fno: string[] } {
+  try {
+    const filePath = path.join(process.cwd(), "public", "stocks.json");
+    const raw = fs.readFileSync(filePath, "utf-8");
+    return JSON.parse(raw);
+  } catch {
+    // fallback defaults if file missing
+    return { symbols: [], fno: [] };
+  }
+}
 
 // ─── Fetch Data from Yahoo Finance ──────────────────────────────────────
 
@@ -227,7 +177,8 @@ interface StockResult {
 function evaluateStock(
   dailyCandles: Candle[],
   weeklyCandles: Candle[],
-  symbol: string
+  symbol: string,
+  fnoSet: Set<string>
 ): StockResult | null {
   if (!dailyCandles || dailyCandles.length < 50) return null;
   if (!weeklyCandles || weeklyCandles.length < 14) return null;
@@ -238,62 +189,40 @@ function evaluateStock(
   const change = currentPrice - prevPrice;
   const changePercent = (change / prevPrice) * 100;
   const baseSymbol = symbol.replace(".NS", "");
-  const isFNO = FNO_STOCKS.has(baseSymbol);
+  const isFNO = fnoSet.has(baseSymbol);
 
-  // ─── C1: Weekly RSI > 60 ────────────────────────────────────
   const weeklyCloses = weeklyCandles.map((c) => c.close);
   const weeklyRSI = calcRSI(weeklyCloses, 14);
   const weeklyRSIPassed = weeklyRSI > 60;
 
-  // ─── C2: Daily RSI between 40-75 ────────────────────────────
   const dailyRSI = calcRSI(closes, 14);
   const dailyRSIPassed = dailyRSI >= 40 && dailyRSI <= 75;
 
-  // ─── C3: Price near 50-day EMA (within -5% to +15%) ────────
   const ema50 = calcEMA(closes, 50);
   const currentEMA50 = ema50[ema50.length - 1];
-  const distanceFrom50EMA =
-    ((currentPrice - currentEMA50) / currentEMA50) * 100;
+  const distanceFrom50EMA = ((currentPrice - currentEMA50) / currentEMA50) * 100;
   const near50EMA = distanceFrom50EMA >= -5 && distanceFrom50EMA <= 15;
 
-  // ─── C4: Bollinger Band Squeeze ─────────────────────────────
   const bbCurrent = calcBollingerBands(closes, 20, 2);
   const bbPrev10 = calcBollingerBands(closes.slice(0, -10), 20, 2);
-  const bbBandwidthRatio =
-    bbPrev10.bandwidth > 0 ? bbCurrent.bandwidth / bbPrev10.bandwidth : 1;
+  const bbBandwidthRatio = bbPrev10.bandwidth > 0 ? bbCurrent.bandwidth / bbPrev10.bandwidth : 1;
   const bbSqueeze = bbBandwidthRatio < 0.95;
 
-  // ─── C5: Range Compression (recent 10 bars vs prior 10 bars) ─
-  const recent10Ranges = dailyCandles
-    .slice(-10)
-    .map((c) => ((c.high - c.low) / c.close) * 100);
-  const prev10Ranges = dailyCandles
-    .slice(-20, -10)
-    .map((c) => ((c.high - c.low) / c.close) * 100);
-  const avgRecentRange =
-    recent10Ranges.reduce((a, b) => a + b, 0) / recent10Ranges.length;
-  const avgPrevRange =
-    prev10Ranges.length > 0
-      ? prev10Ranges.reduce((a, b) => a + b, 0) / prev10Ranges.length
-      : avgRecentRange;
-  const rangeCompression =
-    avgPrevRange > 0 ? avgRecentRange / avgPrevRange : 1;
+  const recent10Ranges = dailyCandles.slice(-10).map((c) => ((c.high - c.low) / c.close) * 100);
+  const prev10Ranges = dailyCandles.slice(-20, -10).map((c) => ((c.high - c.low) / c.close) * 100);
+  const avgRecentRange = recent10Ranges.reduce((a, b) => a + b, 0) / recent10Ranges.length;
+  const avgPrevRange = prev10Ranges.length > 0 ? prev10Ranges.reduce((a, b) => a + b, 0) / prev10Ranges.length : avgRecentRange;
+  const rangeCompression = avgPrevRange > 0 ? avgRecentRange / avgPrevRange : 1;
   const isCompressing = rangeCompression < 0.95;
 
-  // ─── C6: Not near circuit limit ─────────────────────────────
-  const dailyChange =
-    ((currentPrice - dailyCandles[dailyCandles.length - 1].open) /
-      dailyCandles[dailyCandles.length - 1].open) *
-    100;
+  const dailyChange = ((currentPrice - dailyCandles[dailyCandles.length - 1].open) / dailyCandles[dailyCandles.length - 1].open) * 100;
   const notCircuit = Math.abs(dailyChange) < 4.5;
 
-  // ─── C7: ATR declining ──────────────────────────────────────
   const atrs = calcATR(dailyCandles, 14);
   let atrShrinking = false;
   let avgATR = 0;
   if (atrs.length >= 10) {
-    const recentATR =
-      atrs.slice(-5).reduce((a, b) => a + b, 0) / 5;
+    const recentATR = atrs.slice(-5).reduce((a, b) => a + b, 0) / 5;
     const prevATR = atrs.slice(-10, -5).reduce((a, b) => a + b, 0) / 5;
     avgATR = recentATR;
     atrShrinking = prevATR > 0 ? recentATR < prevATR : false;
@@ -301,16 +230,13 @@ function evaluateStock(
     avgATR = atrs[atrs.length - 1];
   }
 
-  // ─── C8: Volume not excessively high ────────────────────────
   const recentVol = dailyCandles.slice(-5).map((c) => c.volume);
   const avgVol50 = dailyCandles.slice(-50).map((c) => c.volume);
-  const recentAvgVol =
-    recentVol.reduce((a, b) => a + b, 0) / recentVol.length;
+  const recentAvgVol = recentVol.reduce((a, b) => a + b, 0) / recentVol.length;
   const avg50Vol = avgVol50.reduce((a, b) => a + b, 0) / avgVol50.length;
   const volumeRatio = avg50Vol > 0 ? recentAvgVol / avg50Vol : 1;
   const volumeOK = volumeRatio < 2.5;
 
-  // ─── C9: Not stretched (>30% above 50 EMA) ─────────────────
   const notStretched = distanceFrom50EMA <= 30;
 
   const criteria: CriteriaResult[] = [
@@ -319,83 +245,63 @@ function evaluateStock(
       name: "Weekly RSI > 60",
       passed: weeklyRSIPassed,
       value: weeklyRSI.toFixed(1),
-      detail: weeklyRSIPassed
-        ? "Bullish momentum on weekly timeframe confirmed"
-        : `Weekly RSI at ${weeklyRSI.toFixed(1)} - below the 60 threshold for range shift`,
+      detail: weeklyRSIPassed ? "Bullish momentum on weekly timeframe confirmed" : `Weekly RSI at ${weeklyRSI.toFixed(1)} - below the 60 threshold for range shift`,
     },
     {
       id: "daily_rsi",
       name: "Daily RSI (40-75)",
       passed: dailyRSIPassed,
       value: dailyRSI.toFixed(1),
-      detail: dailyRSIPassed
-        ? "Daily RSI in healthy range"
-        : dailyRSI > 75
-          ? "Overbought territory - potential pullback risk"
-          : "Weak momentum - RSI below 40",
+      detail: dailyRSIPassed ? "Daily RSI in healthy range" : dailyRSI > 75 ? "Overbought territory - potential pullback risk" : "Weak momentum - RSI below 40",
     },
     {
       id: "near_50ema",
       name: "Price near 50-day EMA",
       passed: near50EMA,
       value: `${distanceFrom50EMA > 0 ? "+" : ""}${distanceFrom50EMA.toFixed(1)}%`,
-      detail: near50EMA
-        ? `Stock is within normal range of 50 EMA (${distanceFrom50EMA.toFixed(1)}%)`
-        : `Too far from 50 EMA (${distanceFrom50EMA.toFixed(1)}%) - may be stretched or broken down`,
+      detail: near50EMA ? `Stock is within normal range of 50 EMA (${distanceFrom50EMA.toFixed(1)}%)` : `Too far from 50 EMA (${distanceFrom50EMA.toFixed(1)}%) - may be stretched or broken down`,
     },
     {
       id: "bb_squeeze",
       name: "Bollinger Band Squeeze",
       passed: bbSqueeze,
       value: `Ratio: ${bbBandwidthRatio.toFixed(3)}`,
-      detail: bbSqueeze
-        ? `BB Width contracting (${bbCurrent.bandwidth.toFixed(2)}% vs ${bbPrev10.bandwidth.toFixed(2)}%) - consolidation detected`
-        : `BB Width not contracting (${bbBandwidthRatio.toFixed(3)}) - no clear consolidation`,
+      detail: bbSqueeze ? `BB Width contracting (${bbCurrent.bandwidth.toFixed(2)}% vs ${bbPrev10.bandwidth.toFixed(2)}%) - consolidation detected` : `BB Width not contracting (${bbBandwidthRatio.toFixed(3)}) - no clear consolidation`,
     },
     {
       id: "range_compression",
       name: "Daily Range Compression",
       passed: isCompressing,
       value: `Ratio: ${rangeCompression.toFixed(3)}`,
-      detail: isCompressing
-        ? `Range compressing: recent avg ${(avgRecentRange * 100).toFixed(1)}% vs prior ${(avgPrevRange * 100).toFixed(1)}%`
-        : `Range not compressing (ratio: ${rangeCompression.toFixed(3)})`,
+      detail: isCompressing ? `Range compressing: recent avg ${(avgRecentRange * 100).toFixed(1)}% vs prior ${(avgPrevRange * 100).toFixed(1)}%` : `Range not compressing (ratio: ${rangeCompression.toFixed(3)})`,
     },
     {
       id: "not_circuit",
       name: "Not at Circuit Limit (5%)",
       passed: notCircuit,
       value: `${dailyChange > 0 ? "+" : ""}${dailyChange.toFixed(1)}%`,
-      detail: notCircuit
-        ? "Not hitting circuit - safe to trade as per RPCI rules"
-        : "At or near circuit limit - avoid per RPCI guidelines",
+      detail: notCircuit ? "Not hitting circuit - safe to trade as per RPCI rules" : "At or near circuit limit - avoid per RPCI guidelines",
     },
     {
       id: "atr_shrinking",
       name: "ATR Declining (Volatility Shrink)",
       passed: atrShrinking,
       value: avgATR > 0 ? avgATR.toFixed(2) : "N/A",
-      detail: atrShrinking
-        ? "ATR declining over 5 bars - volatility compression underway"
-        : "ATR not declining - volatility not reducing",
+      detail: atrShrinking ? "ATR declining over 5 bars - volatility compression underway" : "ATR not declining - volatility not reducing",
     },
     {
       id: "volume_ok",
       name: "Normal Volume (No Panic)",
       passed: volumeOK,
       value: `${volumeRatio.toFixed(2)}x avg`,
-      detail: volumeOK
-        ? "Volume within normal bounds - no panic selling or distribution"
-        : "Abnormal volume spike detected - possible distribution",
+      detail: volumeOK ? "Volume within normal bounds - no panic selling or distribution" : "Abnormal volume spike detected - possible distribution",
     },
     {
       id: "not_stretched",
       name: "Not Stretched (>30% from 50 EMA)",
       passed: notStretched,
       value: `${distanceFrom50EMA > 0 ? "+" : ""}${distanceFrom50EMA.toFixed(1)}%`,
-      detail: notStretched
-        ? `Within acceptable distance from 50 EMA`
-        : `Price is ${distanceFrom50EMA.toFixed(1)}% from 50 EMA - stretched, high risk`,
+      detail: notStretched ? `Within acceptable distance from 50 EMA` : `Price is ${distanceFrom50EMA.toFixed(1)}% from 50 EMA - stretched, high risk`,
     },
   ];
 
@@ -432,7 +338,11 @@ export async function GET(request: NextRequest) {
     const nonFnoOnly = searchParams.get("nonFnoOnly") === "true";
     const limit = parseInt(searchParams.get("limit") || "30");
 
-    const scanList = SCAN_SYMBOLS.filter((s) => {
+    // Load stock list from stocks.json
+    const { symbols: allSymbols, fno: fnoList } = loadStocksConfig();
+    const FNO_STOCKS = new Set(fnoList);
+
+    const scanList = allSymbols.filter((s) => {
       const base = s.replace(".NS", "");
       if (fnoOnly && !FNO_STOCKS.has(base)) return false;
       if (nonFnoOnly && FNO_STOCKS.has(base)) return false;
@@ -443,11 +353,7 @@ export async function GET(request: NextRequest) {
     const errors: string[] = [];
 
     const batchSize = 3;
-    for (
-      let i = 0;
-      i < scanList.length && results.length < limit;
-      i += batchSize
-    ) {
+    for (let i = 0; i < scanList.length && results.length < limit; i += batchSize) {
       const batch = scanList.slice(i, i + batchSize);
       const promises = batch.map(async (symbol) => {
         try {
@@ -456,7 +362,7 @@ export async function GET(request: NextRequest) {
             fetchWeeklyData(symbol),
           ]);
           if (!dailyData || !weeklyData) return null;
-          return evaluateStock(dailyData, weeklyData, symbol);
+          return evaluateStock(dailyData, weeklyData, symbol, FNO_STOCKS);
         } catch (e: unknown) {
           const msg = e instanceof Error ? e.message : String(e);
           errors.push(`${symbol}: ${msg}`);
@@ -488,9 +394,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
-    return NextResponse.json(
-      { success: false, error: msg },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }
