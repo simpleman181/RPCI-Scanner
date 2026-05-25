@@ -33,7 +33,9 @@ import {
   Zap,
   Shield,
   AlertTriangle,
+  Settings2,
 } from 'lucide-react';
+import Link from 'next/link';
 
 // ─── Types ──────────────────────────────────────────────────────────────
 
@@ -175,6 +177,12 @@ export default function Home() {
                   <SelectItem value="nonfno">Non-F&O Only</SelectItem>
                 </SelectContent>
               </Select>
+              <Link href="/stocks">
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 border-gray-200 text-gray-600 hover:text-gray-900">
+                  <Settings2 className="w-3.5 h-3.5" />
+                  Manage Stocks
+                </Button>
+              </Link>
               <Button
                 onClick={runScan}
                 disabled={loading}
