@@ -82,7 +82,7 @@ interface ScanResponse {
 export default function Home() {
   const [data, setData] = useState<ScanResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [minScore, setMinScore] = useState('5');
+  const [minScore, setMinScore] = useState('6');
   const [stockType, setStockType] = useState('all');
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [autoScan, setAutoScan] = useState(false);
@@ -120,22 +120,22 @@ export default function Home() {
 
   const getScoreColor = (score: number, total: number) => {
     const pct = score / total;
-    if (pct >= 0.78) return 'text-emerald-600';
-    if (pct >= 0.56) return 'text-amber-600';
+    if (pct >= 0.77) return 'text-emerald-600';
+    if (pct >= 0.54) return 'text-amber-600';
     return 'text-red-500';
   };
 
   const getScoreBg = (score: number, total: number) => {
     const pct = score / total;
-    if (pct >= 0.78) return 'bg-emerald-50 border-emerald-200';
-    if (pct >= 0.56) return 'bg-amber-50 border-amber-200';
+    if (pct >= 0.77) return 'bg-emerald-50 border-emerald-200';
+    if (pct >= 0.54) return 'bg-amber-50 border-amber-200';
     return 'bg-red-50 border-red-200';
   };
 
   const getScoreBadgeVariant = (score: number, total: number) => {
     const pct = score / total;
-    if (pct >= 0.78) return 'default';
-    if (pct >= 0.56) return 'secondary';
+    if (pct >= 0.77) return 'default';
+    if (pct >= 0.54) return 'secondary';
     return 'destructive';
   };
 
@@ -161,10 +161,10 @@ export default function Home() {
                   <SelectValue placeholder="Min Score" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3">3+ Criteria</SelectItem>
-                  <SelectItem value="5">5+ Criteria</SelectItem>
-                  <SelectItem value="7">7+ Criteria</SelectItem>
+                  <SelectItem value="4">4+ Criteria</SelectItem>
+                  <SelectItem value="6">6+ Criteria</SelectItem>
                   <SelectItem value="8">8+ Criteria</SelectItem>
+                  <SelectItem value="10">10+ Criteria</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={stockType} onValueChange={setStockType}>
@@ -208,13 +208,10 @@ export default function Home() {
             <div className="flex items-start gap-2">
               <Info className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
               <div className="text-xs text-blue-800 leading-relaxed">
-                <span className="font-semibold">RPCI (Range Percent Compression Indicator)</span> identifies stocks in consolidation
-                before a potential breakout. Criteria based on your PDF guide &amp; Chartink scanners:
-                <span className="font-medium"> Weekly RSI &gt; 60</span> (momentum range shift),
-                <span className="font-medium"> BB Squeeze</span>,
-                <span className="font-medium"> Range Compression</span>,
-                <span className="font-medium"> ATR Decline</span>, and
-                <span className="font-medium"> Not at Circuit</span>. Avoidance rules: no 5% circuit stocks, no LT ASM, not stretched &gt;30% from 50 EMA.
+                <span className="font-semibold">RPCI Scanner — 13 Pre-Breakout Criteria</span> (Wilder RSI · Rolling data window · Circuit vs prev close).
+                Core: <span className="font-medium">Weekly RSI &gt; 60</span>, <span className="font-medium">Daily RSI 50–65</span> (coil zone), <span className="font-medium">Price ±5–10% of 50 EMA</span>, <span className="font-medium">BB Squeeze</span> (3 consecutive contractions), <span className="font-medium">Range Compression</span>, <span className="font-medium">ATR Declining</span>.
+                New pre-breakout signals: <span className="font-medium">Volume Dry-Up</span> (last 3 bars &lt; 0.75× avg), <span className="font-medium">NR7</span> (narrowest range in 7 days), <span className="font-medium">Tight 20-day band</span> (&lt;8%), <span className="font-medium">Flat 20-EMA slope</span>.
+                Avoidance: circuit vs prev close, not stretched &gt;10% from 50 EMA, unhealthy volume.
               </div>
             </div>
           </CardContent>
@@ -228,7 +225,7 @@ export default function Home() {
             <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
             <div className="text-center">
               <p className="text-sm font-medium text-gray-700">Scanning NSE Stocks...</p>
-              <p className="text-xs text-gray-400 mt-1">Fetching daily &amp; weekly data, calculating 9 criteria per stock</p>
+              <p className="text-xs text-gray-400 mt-1">Fetching daily &amp; weekly data, calculating 13 criteria per stock</p>
             </div>
           </div>
         )}
