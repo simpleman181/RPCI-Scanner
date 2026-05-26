@@ -213,11 +213,7 @@ export default function StocksPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <textarea
-              placeholder={"360ONE; 3MINDIA; ACC; AIAENG
-or one per line:
-360ONE
-3MINDIA
-ACC"}
+              placeholder="e.g. 360ONE; 3MINDIA; ACC; AIAENG  (or one per line)"
               value={bulkInput}
               onChange={(e) => { setBulkInput(e.target.value.toUpperCase()); setAddError(""); }}
               rows={3}
