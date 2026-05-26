@@ -48,14 +48,14 @@ export default function StocksPage() {
     loadStocks();
   }, [loadStocks]);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!config) return;
     setAddError("");
 
     const raw = bulkInput.trim().toUpperCase();
     if (!raw) { setAddError("Enter at least one symbol"); return; }
 
-    const parts = raw.replace(/[,\r\n]+/g, ';').split(';').map((s: string) => s.trim()).filter(Boolean);
+    const parts = raw.split(';').flatMap((t: string) => t.split(',')).map((s: string) => s.trim()).filter(Boolean);
     if (parts.length === 0) { setAddError("No valid symbols found"); return; }
 
     const toAdd: string[] = [];
@@ -78,14 +78,36 @@ export default function StocksPage() {
     const bases = toAdd.map((s: string) => s.replace(".NS", ""));
     const newSymbols = [...config.symbols, ...toAdd];
     const newFno = bulkFno ? [...config.fno, ...bases] : config.fno;
-    setConfig({ ...config, symbols: newSymbols, fno: newFno });
-    setBulkInput("");
-    setBulkFno(false);
 
-    const msg = skipped.length > 0
-      ? "Added " + toAdd.length + " stock" + (toAdd.length > 1 ? "s" : "") + ". Skipped (already present): " + skipped.join(", ")
-      : "Added " + toAdd.length + " stock" + (toAdd.length > 1 ? "s" : "") + " successfully";
-    setAddError("✓ " + msg);
+    // Auto-save immediately — no separate Save button click needed
+    setSaving(true);
+    setSaveStatus("idle");
+    setSaveMsg("");
+    try {
+      const res = await fetch("/api/stocks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbols: newSymbols, fno: newFno, sha: config.sha }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setConfig({ ...config, symbols: newSymbols, fno: newFno, sha: data.sha });
+      setBulkInput("");
+      setBulkFno(false);
+      const msg = skipped.length > 0
+        ? "Added " + toAdd.length + " stock" + (toAdd.length > 1 ? "s" : "") + ". Skipped (already present): " + skipped.join(", ")
+        : "Added " + toAdd.length + " stock" + (toAdd.length > 1 ? "s" : "") + " — saved to GitHub.";
+      setAddError("✓ " + msg);
+      setSaveStatus("success");
+      setSaveMsg("Saved to GitHub. Vercel will redeploy in ~3 minutes.");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setAddError("Error saving: " + msg);
+      setSaveStatus("error");
+      setSaveMsg(msg);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleRemove = (sym: string) => {
@@ -229,8 +251,9 @@ export default function StocksPage() {
                 />
                 <span className="text-xs text-gray-600">Mark all entered symbols as F&O stocks</span>
               </label>
-              <Button onClick={handleAdd} size="sm" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-5 shrink-0">
-                <Plus className="w-4 h-4" /> Add Stocks
+              <Button onClick={handleAdd} disabled={saving} size="sm" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-5 shrink-0">
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                {saving ? "Saving..." : "Add & Save"}
               </Button>
             </div>
             {addError && (
