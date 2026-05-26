@@ -55,9 +55,7 @@ export default function StocksPage() {
     const raw = bulkInput.trim().toUpperCase();
     if (!raw) { setAddError("Enter at least one symbol"); return; }
 
-    const parts = raw.split(/[;,
-
-]+/).map((s: string) => s.trim()).filter(Boolean);
+    const parts = raw.replace(/[,\r\n]+/g, ';').split(';').map((s: string) => s.trim()).filter(Boolean);
     if (parts.length === 0) { setAddError("No valid symbols found"); return; }
 
     const toAdd: string[] = [];
