@@ -23,8 +23,8 @@ export default function StocksPage() {
   const [saving, setSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "success" | "error">("idle");
   const [saveMsg, setSaveMsg] = useState("");
-  const [newSymbol, setNewSymbol] = useState("");
-  const [newSymbolFno, setNewSymbolFno] = useState(false);
+  const [bulkInput, setBulkInput] = useState("");
+  const [bulkFno, setBulkFno] = useState(false);
   const [addError, setAddError] = useState("");
   const [search, setSearch] = useState("");
 
@@ -52,17 +52,42 @@ export default function StocksPage() {
     if (!config) return;
     setAddError("");
 
-    let sym = newSymbol.trim().toUpperCase();
-    if (!sym) { setAddError("Enter a symbol"); return; }
-    if (!sym.endsWith(".NS")) sym = sym + ".NS";
-    if (config.symbols.includes(sym)) { setAddError(`${sym} already in list`); return; }
+    const raw = bulkInput.trim().toUpperCase();
+    if (!raw) { setAddError("Enter at least one symbol"); return; }
 
-    const base = sym.replace(".NS", "");
-    const newSymbols = [...config.symbols, sym];
-    const newFno = newSymbolFno ? [...config.fno, base] : config.fno;
+    const parts = raw.split(/[;,
+
+]+/).map((s: string) => s.trim()).filter(Boolean);
+    if (parts.length === 0) { setAddError("No valid symbols found"); return; }
+
+    const toAdd: string[] = [];
+    const skipped: string[] = [];
+
+    for (const part of parts) {
+      const sym = part.endsWith(".NS") ? part : part + ".NS";
+      if (config.symbols.includes(sym)) {
+        skipped.push(sym.replace(".NS", ""));
+      } else {
+        toAdd.push(sym);
+      }
+    }
+
+    if (toAdd.length === 0) {
+      setAddError("All symbols already in list: " + skipped.join(", "));
+      return;
+    }
+
+    const bases = toAdd.map((s: string) => s.replace(".NS", ""));
+    const newSymbols = [...config.symbols, ...toAdd];
+    const newFno = bulkFno ? [...config.fno, ...bases] : config.fno;
     setConfig({ ...config, symbols: newSymbols, fno: newFno });
-    setNewSymbol("");
-    setNewSymbolFno(false);
+    setBulkInput("");
+    setBulkFno(false);
+
+    const msg = skipped.length > 0
+      ? "Added " + toAdd.length + " stock" + (toAdd.length > 1 ? "s" : "") + ". Skipped (already present): " + skipped.join(", ")
+      : "Added " + toAdd.length + " stock" + (toAdd.length > 1 ? "s" : "") + " successfully";
+    setAddError("✓ " + msg);
   };
 
   const handleRemove = (sym: string) => {
@@ -181,34 +206,44 @@ export default function StocksPage() {
         {/* Add stock */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-gray-800">Add a Stock</CardTitle>
+            <CardTitle className="text-sm font-semibold text-gray-800">Add Stocks</CardTitle>
             <CardDescription className="text-xs">
-              Enter the NSE ticker (e.g. ZOMATO or ZOMATO.NS). The .NS suffix is added automatically.
+              Enter one or multiple NSE symbols separated by <strong>semicolons</strong>, commas, or new lines.
+              The <code className="bg-gray-100 px-1 rounded font-mono">.NS</code> suffix is added automatically.
+              New stocks default to <strong>Non-F&O</strong> — toggle individual rows after adding.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex gap-2">
-              <Input
-                placeholder="e.g. ZOMATO"
-                value={newSymbol}
-                onChange={(e) => { setNewSymbol(e.target.value.toUpperCase()); setAddError(""); }}
-                onKeyDown={(e) => e.key === "Enter" && handleAdd()}
-                className="uppercase font-mono text-sm"
-              />
-              <Button onClick={handleAdd} size="sm" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-4">
-                <Plus className="w-4 h-4" /> Add
+            <textarea
+              placeholder={"360ONE; 3MINDIA; ACC; AIAENG
+or one per line:
+360ONE
+3MINDIA
+ACC"}
+              value={bulkInput}
+              onChange={(e) => { setBulkInput(e.target.value.toUpperCase()); setAddError(""); }}
+              rows={3}
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono uppercase shadow-sm placeholder:text-muted-foreground placeholder:normal-case placeholder:font-sans focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-y min-h-[72px]"
+            />
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={bulkFno}
+                  onChange={(e) => setBulkFno(e.target.checked)}
+                  className="rounded"
+                />
+                <span className="text-xs text-gray-600">Mark all entered symbols as F&O stocks</span>
+              </label>
+              <Button onClick={handleAdd} size="sm" className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-5 shrink-0">
+                <Plus className="w-4 h-4" /> Add Stocks
               </Button>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer w-fit">
-              <input
-                type="checkbox"
-                checked={newSymbolFno}
-                onChange={(e) => setNewSymbolFno(e.target.checked)}
-                className="rounded"
-              />
-              <span className="text-xs text-gray-600">This is an F&O (derivatives) stock</span>
-            </label>
-            {addError && <p className="text-xs text-red-500">{addError}</p>}
+            {addError && (
+              <p className={"text-xs " + (addError.startsWith("✓") ? "text-emerald-600 font-medium" : "text-red-500")}>
+                {addError}
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -294,9 +329,10 @@ export default function StocksPage() {
         <Card className="border-blue-100 bg-blue-50/50">
           <CardContent className="py-3 px-4 text-xs text-blue-800 space-y-1">
             <p className="font-semibold">How this works</p>
-            <p>Changes are saved directly to the <code className="bg-blue-100 px-1 rounded">public/stocks.json</code> file in GitHub via the API. Vercel automatically redeploys on every save (~3 min). The stock list persists across all visits and deployments.</p>
-            <p>Click the <strong>F&O / Non-F&O badge</strong> on any stock to toggle its classification. Hover a stock row and click the <strong>trash icon</strong> to remove it.</p>
-            <p className="text-blue-600">⚠️ You must click <strong>Save Changes</strong> for your edits to persist.</p>
+            <p>Changes are saved to <code className="bg-blue-100 px-1 rounded font-mono">public/stocks.json</code> in GitHub. Vercel redeploys automatically (~3 min). The list persists across all visits.</p>
+            <p><strong>Bulk add:</strong> paste symbols separated by <code className="bg-blue-100 px-1 rounded">;</code> semicolons, commas, or new lines — e.g. <code className="bg-blue-100 px-1 rounded font-mono">360ONE; 3MINDIA; ACC</code>. New stocks default to <strong>Non-F&O</strong>; toggle after adding if needed.</p>
+            <p>Click the <strong>F&O / Non-F&O badge</strong> on any row to toggle. Hover a row and click the <strong>trash icon</strong> to remove.</p>
+            <p className="text-blue-600">⚠️ Click <strong>Save Changes</strong> to persist edits to GitHub.</p>
           </CardContent>
         </Card>
       </main>
